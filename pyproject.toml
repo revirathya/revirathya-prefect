@@ -1,0 +1,10 @@
+[project]
+name = "revirathya-prefect"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "prefect>=3.2.15",
+    "prefect-client>=3.2.15",
+]
