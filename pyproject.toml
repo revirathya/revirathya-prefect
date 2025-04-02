@@ -5,6 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "prefect>=3.2.15",
+    "prefect[github]>=3.2.15",
     "prefect-client>=3.2.15",
 ]
+
+[dependency-groups]
+dev = [
+    "revi-toolbox",
+]
+
+[tool.uv.sources]
+revi-toolbox = { git = "https://github.com/revirathya/revirathya-toolbox.git" }
