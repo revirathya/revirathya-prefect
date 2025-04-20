@@ -1,0 +1,111 @@
+name: revirathya-prefect
+prefect-version: 3.3.1
+description: Prefect Scheduled Flows for Revirathya Projects
+
+build:
+  - prefect_docker.deployments.steps.build_docker_image:
+      requires: prefect-docker
+      image_name: avidito/revirathya-prefect
+      tag: 3-0.1.0
+      dockerfile: Dockerfile
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /app
+
+definitions:
+  work_pools:
+    docker-pool: &docker_pool
+      name: docker-pool
+      job_variables:
+        image: avidito/revirathya-prefect:3-0.1.0
+      work_queue_name:
+
+deployments:
+  - name: manga-mangabats-scraper-chapters
+    version: 0.1.0
+    description: Manga Scraper for MangaBats Chapter info
+    tags:
+      - manga
+      - scraper
+    work_pool: *docker_pool
+    concurrency_limit:
+    schedules:
+      - cron: 0 5-23 * * *
+        timezone: Asia/Jakarta
+        day_or: true
+        active: true
+    entrypoint: flows/manga/mangabats_scraper_chapters/flow.py:main
+    parameters:
+      slug_list:
+        - juujika-no-rokunin
+        - blue-lock
+        - shuumatsu-no-valkyrie
+
+  - name: manga-mangabats-scraper-overviews
+    version: 0.1.0
+    description: Manga Scraper for MangaBats Chapter info
+    tags:
+      - manga
+      - scraper
+    work_pool: *docker_pool
+    concurrency_limit:
+    schedules:
+    - cron: 45 4 * * *
+      timezone: Asia/Jakarta
+      day_or: true
+      active: true
+    entrypoint: flows/manga/mangabats_scraper_overviews/flow.py:main
+    parameters:
+      slug_list:
+        - juujika-no-rokunin
+        - blue-lock
+        - shuumatsu-no-valkyrie
+
+  - name: manga-log-scraper-runtime
+    version: 0.1.0
+    description: Load Manga Scraper runtime
+    tags:
+      - manga
+      - log
+    work_pool: *docker_pool
+    concurrency_limit:
+    schedules:
+    entrypoint: flows/manga/log_scraper_runtime/flow.py:main
+    parameters:
+      name: Test Log
+      runtime_job_id: "20250101080000"
+
+  - name: manga-sync-chapters
+    version: 0.1.0
+    description: Sync Manga Chapters from Raw Scraping results
+    tags:
+      - manga
+      - sync
+    work_pool: *docker_pool
+    concurrency_limit:
+    schedules:
+      - cron: 8 5-23 * * *
+        timezone: Asia/Jakarta
+        day_or: true
+        active: true
+    entrypoint: flows/manga/sync_chapters/flow.py:main
+    parameters:
+      scraper_job_id: []
+
+  - name: manga-sync-overviews
+    version: 0.1.0
+    description: Sync Manga Overviews from Raw Scraping results
+    tags:
+      - manga
+      - sync
+    work_pool: *docker_pool
+    concurrency_limit:
+    schedules:
+      - cron: 5 5-23 * * *
+        timezone: Asia/Jakarta
+        day_or: true
+        active: true
+    entrypoint: flows/manga/sync_overviews/flow.py:main
+    parameters:
+      scraper_job_id: []
